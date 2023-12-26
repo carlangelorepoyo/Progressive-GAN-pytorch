@@ -1,7 +1,7 @@
 # Progressive-GAN-pytorch
 A pytorch implementation of Progressive-GAN that is actually work, readable and simple to customize
 
-A fork of [this repo](https://github.com/odegeasslbc/Progressive-GAN-pytorch) with some features added
+A fork of [this repo](https://github.com/odegeasslbc/Progressive-GAN-pytorch) with some features added.
 
 ## How to run
 To start a training, just run:
