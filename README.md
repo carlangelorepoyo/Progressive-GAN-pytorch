@@ -1,11 +1,7 @@
 # Progressive-GAN-pytorch
 A pytorch implementation of Progressive-GAN that is actually work, readable and simple to customize
 
-## Description
-I simplify the code of training a Progressive-GAN, making it easier to read and customize, for the purpose of research.  
-This implementation is portable with minimal library dependency (only torch and torchvision) and just 2 code modules. In the code, you can easily modeify the training-schema, the loss function, and the network structure, etc.  
-The key contributions in the paper: 1. progressively growing of GAN, 2. minibatch std on Discriminator, 3. pixel-norm on Generator, 4. equalized learning rate; are all implemented.  
-Enjoy the benefit of the progressive-growing infrastructure and port it to your own research and product!
+A fork of [this repo](https://github.com/odegeasslbc/Progressive-GAN-pytorch) with some features added
 
 ## How to run
 To start a training, just run:
@@ -34,9 +30,6 @@ Place all your images in a way like:
         |--<subfolder 2>
         ...
 ```
-
-## Training results
-This code performs consistently well on various datasets I tested, I just don't bother upload them here.
 
 ## Reference
 1. *Progressive Growing of GANs for Improved Quality, Stability, and Variation*, **Tero Karras** (NVIDIA), **Timo Aila** (NVIDIA), **Samuli Laine** (NVIDIA), **Jaakko Lehtinen** (NVIDIA and Aalto University) [Paper (NVIDIA research)](http://research.nvidia.com/publication/2017-10_Progressive-Growing-of)
