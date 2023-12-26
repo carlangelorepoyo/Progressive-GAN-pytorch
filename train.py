@@ -12,7 +12,9 @@ from torch.utils.data import DataLoader
 from torchvision import datasets, transforms, utils
 
 from progan_modules import Generator, Discriminator
+from diffaug import DiffAugment
 
+policy = 'color,translation'
 
 def accumulate(model1, model2, decay=0.999):
     par1 = dict(model1.named_parameters())
@@ -119,7 +121,7 @@ def train(generator, discriminator, init_step, loader, total_iter=600000):
         real_image = real_image.to(device)
         label = label.to(device)
         real_predict = discriminator(
-            real_image, step=step, alpha=alpha)
+            DiffAugment(real_image, policy=policy), step=step, alpha=alpha)
         real_predict = real_predict.mean() \
             - 0.001 * (real_predict ** 2).mean()
         real_predict.backward(mone)
@@ -129,7 +131,7 @@ def train(generator, discriminator, init_step, loader, total_iter=600000):
 
         fake_image = generator(gen_z, step=step, alpha=alpha)
         fake_predict = discriminator(
-            fake_image.detach(), step=step, alpha=alpha)
+            DiffAugment(fake_image, policy=policy).detach(), step=step, alpha=alpha)
         fake_predict = fake_predict.mean()
         fake_predict.backward(one)
 
@@ -154,7 +156,7 @@ def train(generator, discriminator, init_step, loader, total_iter=600000):
             generator.zero_grad()
             discriminator.zero_grad()
             
-            predict = discriminator(fake_image, step=step, alpha=alpha)
+            predict = discriminator(DiffAugment(fake_image, policy=policy), step=step, alpha=alpha)
 
             loss = -predict.mean()
             gen_loss_val += loss.item()
