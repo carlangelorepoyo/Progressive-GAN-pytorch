@@ -14,8 +14,6 @@ from torchvision import datasets, transforms, utils
 from progan_modules import Generator, Discriminator
 from diffaug import DiffAugment
 
-policy = 'color,translation'
-
 def accumulate(model1, model2, decay=0.999):
     par1 = dict(model1.named_parameters())
     par2 = dict(model2.named_parameters())
@@ -47,7 +45,7 @@ def sample_data(dataloader, image_size=4):
     return loader
 
 
-def train(generator, discriminator, init_step, loader, total_iter=600000):
+def train(generator, discriminator, init_step, loader, total_iter=600000, diffaug_policy):
     step = init_step # can be 1 = 8, 2 = 16, 3 = 32, 4 = 64, 5 = 128, 6 = 128
     data_loader = sample_data(loader, 4 * 2 ** step)
     dataset = iter(data_loader)
@@ -121,7 +119,7 @@ def train(generator, discriminator, init_step, loader, total_iter=600000):
         real_image = real_image.to(device)
         label = label.to(device)
         real_predict = discriminator(
-            DiffAugment(real_image, policy=policy), step=step, alpha=alpha)
+            DiffAugment(real_image, policy=diffaug_policy), step=step, alpha=alpha)
         real_predict = real_predict.mean() \
             - 0.001 * (real_predict ** 2).mean()
         real_predict.backward(mone)
@@ -131,7 +129,7 @@ def train(generator, discriminator, init_step, loader, total_iter=600000):
 
         fake_image = generator(gen_z, step=step, alpha=alpha)
         fake_predict = discriminator(
-            DiffAugment(fake_image, policy=policy).detach(), step=step, alpha=alpha)
+            DiffAugment(fake_image, policy=diffaug_policy).detach(), step=step, alpha=alpha)
         fake_predict = fake_predict.mean()
         fake_predict.backward(one)
 
@@ -156,7 +154,7 @@ def train(generator, discriminator, init_step, loader, total_iter=600000):
             generator.zero_grad()
             discriminator.zero_grad()
             
-            predict = discriminator(DiffAugment(fake_image, policy=policy), step=step, alpha=alpha)
+            predict = discriminator(DiffAugment(fake_image, policy=diffaug_policy), step=step, alpha=alpha)
 
             loss = -predict.mean()
             gen_loss_val += loss.item()
@@ -217,6 +215,7 @@ if __name__ == '__main__':
     parser.add_argument('--total_iter', type=int, default=300000, help='how many iterations to train in total, the value is in assumption that init step is 1')
     parser.add_argument('--pixel_norm', default=False, action="store_true", help='a normalization method inside the model, you can try use it or not depends on the dataset')
     parser.add_argument('--tanh', default=False, action="store_true", help='an output non-linearity on the output of Generator, you can try use it or not depends on the dataset')
+    parser.add_argument('--diffaug_policy', type=str, default='color,translation', help='diffaugment policy, use any from \'color,translation,cutout\' ')
     
     args = parser.parse_args()
 
@@ -246,4 +245,4 @@ if __name__ == '__main__':
 
     loader = imagefolder_loader(args.path)
 
-    train(generator, discriminator, args.init_step, loader, args.total_iter)
+    train(generator, discriminator, args.init_step, loader, args.total_iter, args.diffaug_policy)
